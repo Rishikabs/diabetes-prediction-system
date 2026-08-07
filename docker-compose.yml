@@ -1,0 +1,23 @@
+services:
+  diabetes-prediction-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: diabetes-prediction-system:latest
+    container_name: diabetes-prediction-system
+    ports:
+      - "8501:8501"
+    volumes:
+      # Persist the trained model & generated data across container restarts
+      - ./models:/app/models
+      - ./data:/app/data
+      - ./reports:/app/reports
+    environment:
+      - STREAMLIT_SERVER_HEADLESS=true
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8501/_stcore/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
